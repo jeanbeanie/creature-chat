@@ -3,21 +3,32 @@ import './App.css'
 
 function App() {
   const [status, setStatus] = useState("Checking..!!");
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string|null>(null);
 
   useEffect(() => {
     async function checkHealth() {
       try {
         const response = await fetch("/api/health");
-        const data = await response.json();
-        if(data.ok){
-          setStatus("we're good boss");
+        let data;
+
+        try { 
+          data = await response.json();
+        } catch {
+          // server responded with non JSON...
+          setStatus("health is no bueno!");
+          setError("The server did not send JSON");
+          return;
+        }
+
+        if (response.ok && data?.ok === true) {
+          setStatus("We're good boss!");
         } else {
-          // ?
+          setStatus("health is no bueno");
+          setError(data?.message ?? `HTTP ${response.status}`);
         }
       } catch (err) {
-        setError(err.message);
-        setStatus("health is no bueno;")
+        setError(err instanceof Error ? err.message : "Hmm something went wrong.");
+        setStatus("health is no bueno;");
       }
     }
 
