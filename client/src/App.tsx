@@ -6,9 +6,11 @@ function App() {
   const [error, setError] = useState<string|null>(null);
 
   useEffect(() => {
+    const controller = new AbortController();
+
     async function checkHealth() {
       try {
-        const response = await fetch("/api/health");
+        const response = await fetch("/api/health", { signal: controller.signal });
         let data;
 
         try { 
@@ -27,12 +29,18 @@ function App() {
           setError(data?.message ?? `HTTP ${response.status}`);
         }
       } catch (err) {
+        if(err instanceof Error && err.name === "AbortError") return;
         setError(err instanceof Error ? err.message : "Hmm something went wrong.");
         setStatus("health is no bueno;");
       }
     }
 
-    setTimeout(()=> {checkHealth()}, 2000);
+    const timerId = setTimeout(()=> {checkHealth()}, 2000);
+
+    return () => {
+      clearTimeout(timerId);
+      controller.abort();
+    };
   }, [])
 
   return (
