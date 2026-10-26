@@ -5,7 +5,6 @@ import './App.css'
 const cannedMessages = ["Hello","ok", "Cool."];
 
 function App() {
-  const [status, setStatus] = useState("Checking..!!");
   const [error, setError] = useState<string|null>(null);
 
 
@@ -31,7 +30,6 @@ function App() {
           <button type="submit">Submit</button>
         </form>
         <div>
-          <p>Health status: {status}</p>
           {error && <p>{error}</p>}
         </div>
       </section>
